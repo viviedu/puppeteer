@@ -67,6 +67,7 @@ Next Release: **Aug 9, 2018**
   * [event: 'requestfailed'](#event-requestfailed)
   * [event: 'requestfinished'](#event-requestfinished)
   * [event: 'response'](#event-response)
+  * [event: 'screencastframe'](#event-screencastframe)
   * [event: 'workercreated'](#event-workercreated)
   * [event: 'workerdestroyed'](#event-workerdestroyed)
   * [page.$(selector)](#pageselector)
@@ -105,6 +106,7 @@ Next Release: **Aug 9, 2018**
   * [page.pdf(options)](#pagepdfoptions)
   * [page.queryObjects(prototypeHandle)](#pagequeryobjectsprototypehandle)
   * [page.reload(options)](#pagereloadoptions)
+  * [page.screencastFrameAck(sessionId)](#pagescreencastframeacksessionid)
   * [page.screenshot([options])](#pagescreenshotoptions)
   * [page.select(selector, ...values)](#pageselectselector-values)
   * [page.setBypassCSP(enabled)](#pagesetbypasscspenabled)
@@ -118,6 +120,8 @@ Next Release: **Aug 9, 2018**
   * [page.setRequestInterception(value)](#pagesetrequestinterceptionvalue)
   * [page.setUserAgent(userAgent)](#pagesetuseragentuseragent)
   * [page.setViewport(viewport)](#pagesetviewportviewport)
+  * [page.startScreencast([options])](#pagestartscreencastoptions)
+  * [page.stopScreencast()](#pagestopscreencast)
   * [page.tap(selector)](#pagetapselector)
   * [page.target()](#pagetarget)
   * [page.title()](#pagetitle)
@@ -783,6 +787,21 @@ Emitted when a request finishes successfully.
 
 Emitted when a [response] is received.
 
+#### event: 'screencastframe'
+- <[object]>
+    - `data` <[string]> Base64 encoded frame data.
+    - `metadata` <[object]>
+        - `offsetTop` <[number]>
+        - `pageScaleFactor` <[number]>
+        - `deviceWidth` <[number]>
+        - `deviceHeight` <[number]>
+        - `scrollOffsetX` <[number]>
+        - `scrollOffsetY` <[number]>
+        - `timestamp` <[number]>
+    - `sessionId` <[number]> The ID of the session this frame is from.
+
+Emitted when a [response] is received.
+
 #### event: 'workercreated'
 - <[Worker]>
 
@@ -1352,6 +1371,10 @@ Shortcut for [page.mainFrame().executionContext().queryObjects(prototypeHandle)]
     - `networkidle2` - consider navigation to be finished when there are no more than 2 network connections for at least `500` ms.
 - returns: <[Promise]<[Response]>> Promise which resolves to the main resource response. In case of multiple redirects, the navigation will resolve with the response of the last redirect.
 
+#### page.screencastFrameAck(sessionId)
+- `sessionId` <[number]> The sessionId of the frame that is being acknowledge. Provided in the `screencastframe` event.
+- returns: <[Promise]>
+
 #### page.screenshot([options])
 - `options` <[Object]> Options object which might have the following properties:
   - `path` <[string]> The file path to save the image to. The screenshot type will be inferred from file extension. If `path` is a relative path, then it is resolved relative to [current working directory](https://nodejs.org/api/process.html#process_process_cwd). If no path is provided, the image won't be saved to the disk.
@@ -1488,6 +1511,18 @@ puppeteer.launch().then(async browser => {
 > **NOTE** in certain cases, setting viewport will reload the page in order to set the `isMobile` or `hasTouch` properties.
 
 In the case of multiple pages in a single browser, each page can have its own viewport size.
+
+#### page.startScreencast([options])
+- `options` <[Object]> Options object which might have the following properties:
+    - `format` <[string]> Specify screencast frame format, could be either `jpeg` or `png`. Defaults to 'png'.
+    - `quality` <[number]> The quality of the image, between 0-100. Not applicable to `png` images.
+    - `maxWidth` <[number]> The maximum width of the screencast frame.
+    - `maxHeight` <[number]> The maximum height of the screencast frame.
+    - `everyNthFrame` <[number]> Defines which frames to send.
+- returns: <[Promise]>
+
+#### page.stopScreencast()
+- returns: <[Promise]>
 
 #### page.tap(selector)
 - `selector` <[string]> A [selector] to search for element to tap. If there are multiple elements satisfying the selector, the first will be tapped.
